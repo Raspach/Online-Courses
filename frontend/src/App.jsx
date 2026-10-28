@@ -1,36 +1,67 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import MainLayout from './layouts/MainLayout';
-import ProtectedRoute from './components/ProtectedRoute';
-import Login from './pages/Login';
-import CoursesCatalog from './pages/CoursesCatalog';
-import TeacherDashboard from './pages/TeacherDashboard';
+import { Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "sonner";
+import { MainLayout } from "./layouts/MainLayout";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import CatalogPage from "./pages/CatalogPage";
+import CourseDetailPage from "./pages/CourseDetailPage";
+import MyCoursesPage from "./pages/MyCoursesPage";
+import DashboardPage from "./pages/DashboardPage";
+import TeacherCoursesPage from "./pages/TeacherCoursesPage";
+import TeacherCourseEditPage from "./pages/TeacherCourseEditPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
-function App() {
+export default function App() {
   return (
-    <BrowserRouter>
+    <>
+      <Toaster position="top-right" richColors />
       <Routes>
-        <Route path="/login" element={<Login />} />
-        
-        <Route path="/" element={<MainLayout />}>
-          {/* Открытая или общая страница каталога */}
-          <Route index element={<CoursesCatalog />} />
-          
-          {/* Защищенная страница преподавателя */}
-          <Route 
-            path="teacher" 
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<Navigate to="/courses" replace />} />
+          <Route path="/courses" element={<CatalogPage />} />
+          <Route path="/courses/:id" element={<CourseDetailPage />} />
+
+          <Route
+            path="/my-courses"
             element={
-              <ProtectedRoute allowedRole="teacher">
-                <TeacherDashboard />
+              <ProtectedRoute role="STUDENT">
+                <MyCoursesPage />
               </ProtectedRoute>
-            } 
+            }
           />
-          
-          {/* Страница 404 */}
-          <Route path="*" element={<div className="text-center py-20 text-xl text-gray-600">Страница не найдена (404)</div>} />
+
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute role="TEACHER">
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/teacher/courses"
+            element={
+              <ProtectedRoute role="TEACHER">
+                <TeacherCoursesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/teacher/courses/:id"
+            element={
+              <ProtectedRoute role="TEACHER">
+                <TeacherCourseEditPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </>
   );
 }
-
-export default App;

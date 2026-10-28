@@ -1,16 +1,16 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
-export default function ProtectedRoute({ children, allowedRole }) {
-  const token = localStorage.getItem('accessToken');
-  const userRole = localStorage.getItem('userRole');
+// Закрывает маршрут для неавторизованных и, если указана role,
+// пускает только пользователей с нужной ролью.
+export function ProtectedRoute({ children, role }) {
+  const { isAuthenticated, user } = useAuth();
 
-  if (!token) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-
-  if (allowedRole && userRole !== allowedRole) {
-    return <Navigate to="/" replace />;
+  if (role && user.role !== role) {
+    return <Navigate to="/courses" replace />;
   }
-
   return children;
 }
